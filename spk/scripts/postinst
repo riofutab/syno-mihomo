@@ -1,0 +1,20 @@
+#!/bin/sh
+# 记录 NAS 的局域网地址，面板首次打开时用它自动连接 mihomo 控制接口。
+# 安装和升级都会执行，NAS 换了地址时重新安装或升级一次即可更新。
+API_PORT=7881
+
+IP_BIN=$(command -v ip 2>/dev/null || echo /sbin/ip)
+nas_ip=$("$IP_BIN" -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p' | head -n 1)
+if [ -n "$nas_ip" ]; then
+    printf 'http://%s:%s\n' "$nas_ip" "$API_PORT" >"$SYNOPKG_PKGVAR/backend_url"
+fi
+
+shown_ip=${nas_ip:-NAS的IP}
+cat >"$SYNOPKG_TEMP_LOGFILE" <<MSG
+<p>安装完成。启动套件后：</p>
+<p>代理（HTTP 和 SOCKS5 共用）：<strong>${shown_ip}:7890</strong></p>
+<p>面板：<strong>http://${shown_ip}:7880</strong>，也可以点 DSM 主菜单里的「Mihomo 代理」图标。</p>
+<p>在面板的「配置」页添加订阅链接后即可使用。</p>
+<p>面板没有登录密码，请不要把 7880、7881、7890 端口映射到公网。</p>
+MSG
+exit 0

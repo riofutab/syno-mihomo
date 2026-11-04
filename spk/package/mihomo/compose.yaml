@@ -1,0 +1,37 @@
+# 由 Container Manager 的 docker-project 管理：安装时创建，卸载时删除，套件启停时启停。
+# 镜像随套件一起提供（target/image.tar.gz），安装时载入，不需要联网拉取。
+#
+# 端口只绑定 IPv4（0.0.0.0）。面板本身没有登录验证，
+# 不绑 IPv6 是为了避免运营商下发的公网 IPv6 把面板和代理暴露到公网。
+services:
+  mihomo:
+    image: ghcr.io/metacubex/metacubexd-server:__UPSTREAM_VERSION__
+    container_name: syno-mihomo
+    restart: unless-stopped
+    environment:
+      CONTROL_PORT: '8080'
+      CLASH_API_PORT: '9090'
+      MIXED_PORT: '7890'
+      DATA_DIR: /pkgvar/data
+      TZ: Asia/Shanghai
+    ports:
+      - '0.0.0.0:7880:8080' # 面板
+      - '0.0.0.0:7881:9090' # mihomo 控制接口，面板从浏览器直连
+      - '0.0.0.0:7890:7890' # HTTP + SOCKS5 代理
+    volumes:
+      # 套件数据目录（/volume1/@appdata/syno-mihomo），升级和重装都保留
+      - /var/packages/syno-mihomo/var:/pkgvar
+      # 本目录随套件升级整体替换，里面的 entrypoint.sh 只读挂载
+      - /var/packages/syno-mihomo/target/mihomo:/pkgvar-run:ro
+    entrypoint: ['/sbin/tini', '--', '/bin/sh', '/pkgvar-run/entrypoint.sh']
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8080/api/control/health']
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'

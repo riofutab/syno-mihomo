@@ -1,0 +1,16 @@
+{
+    "docker-project": {
+        "preload-image": "image.tar.gz",
+        "projects": [
+            {
+                "name": "syno-mihomo",
+                "path": "mihomo",
+                "build_params": {
+                    "force_pull": false,
+                    "force_recreate": true,
+                    "build": false
+                }
+            }
+        ]
+    }
+}

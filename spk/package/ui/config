@@ -1,0 +1,14 @@
+{
+    ".url": {
+        "com.riofutab.synomihomo": {
+            "type": "url",
+            "title": "Mihomo 代理",
+            "desc": "mihomo 代理面板（metacubexd）",
+            "icon": "images/icon_{0}.png",
+            "protocol": "http",
+            "port": "7880",
+            "url": "/",
+            "allUsers": false
+        }
+    }
+}

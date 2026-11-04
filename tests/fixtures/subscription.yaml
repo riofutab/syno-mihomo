@@ -1,0 +1,33 @@
+# 和真实订阅（GeneralClashConfig_FakeIP.yml）里会影响群晖运行的设置保持一致：
+# 打开 TUN、DNS 监听 0.0.0.0:53、控制接口只听本机。节点换成 DIRECT。
+mixed-port: 7890
+allow-lan: true
+bind-address: "*"
+mode: rule
+log-level: info
+external-controller: 127.0.0.1:9090
+find-process-mode: strict
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack:
+    - any:53
+  auto-route: true
+  auto-detect-interface: true
+dns:
+  enable: true
+  ipv6: false
+  listen: 0.0.0.0:53
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+proxies: []
+proxy-groups:
+  - name: 节点选择
+    type: select
+    proxies:
+      - DIRECT
+rules:
+  - MATCH,节点选择

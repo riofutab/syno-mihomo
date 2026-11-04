@@ -1,0 +1,23 @@
+#!/bin/sh
+# 容器由 Container Manager 的 docker-project 启停，这里只负责报告状态。
+CONTAINER="syno-mihomo"
+DOCKER_INSPECT="/usr/local/bin/docker_inspect"
+
+case "$1" in
+    start | stop | prestart | prestop)
+        exit 0
+        ;;
+    status)
+        # 0 = 运行中，3 = 未运行
+        if "$DOCKER_INSPECT" "$CONTAINER" 2>/dev/null | grep -q '"Status": *"running"'; then
+            exit 0
+        fi
+        exit 3
+        ;;
+    log)
+        echo ""
+        exit 0
+        ;;
+esac
+echo "用法: $0 {start|stop|status|log}" >&2
+exit 1
